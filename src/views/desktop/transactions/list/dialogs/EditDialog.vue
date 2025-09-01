@@ -245,12 +245,10 @@
                                     </v-tooltip>
                                 </v-col>
                                 <v-col cols="12" md="6" v-if="type === TransactionEditPageType.Transaction">
-                                    <date-time-select
-                                        :readonly="mode === TransactionEditPageMode.View"
-                                        :disabled="loading || submitting"
-                                        :label="tt('Transaction Time')"
-                                        v-model="transaction.time"
-                                        @error="onShowDateTimeError" />
+                                    <v-text-field :readonly="mode === TransactionEditPageMode.View"
+                                                  :disabled="loading || submitting"
+                                                  :label="tt('Transaction Time')"
+                                                  v-model="transaction.timeFormatted"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6" v-if="type === TransactionEditPageType.Template && transaction instanceof TransactionTemplate && transaction.templateType === TemplateType.Schedule.type">
                                     <schedule-frequency-select
@@ -1223,9 +1221,6 @@ function viewOrRemovePicture(pictureInfo: TransactionPictureInfoBasicResponse): 
     });
 }
 
-function onShowDateTimeError(error: string): void {
-    snackbar.value?.showError(error);
-}
 
 watch(activeTab, (newValue) => {
     if (newValue === 'map') {

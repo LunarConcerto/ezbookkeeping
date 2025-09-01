@@ -7,6 +7,9 @@ import { Account, type AccountInfoResponse } from './account.ts';
 import { TransactionCategory, type TransactionCategoryInfoResponse } from './transaction_category.ts';
 import { TransactionTag, type TransactionTagInfoResponse } from './transaction_tag.ts';
 import { TransactionPicture, type TransactionPictureInfoBasicResponse } from './transaction_picture_info.ts';
+import { format, parse, isValid } from 'date-fns';
+
+const timeFormatStr : string = 'yyyy-MM-dd HH:mm:ss';
 
 export class Transaction implements TransactionInfoResponse {
     public id: string;
@@ -38,7 +41,6 @@ export class Transaction implements TransactionInfoResponse {
     private _gregorianCalendarYearDashMonthDashDay?: TextualYearMonthDay = undefined; // only for displaying transaction in transaction list
     private _gregorianCalendarDayOfMonth?: number = undefined; // only for displaying transaction in transaction list
     private _displayDayOfWeek?: WeekDay = undefined; // only for displaying transaction in transaction list
-
     protected constructor(id: string, timeSequenceId: string, type: number, categoryId: string, time: number, timeZone: string | undefined, utcOffset: number, sourceAccountId: string, destinationAccountId: string, sourceAmount: number, destinationAmount: number, hideAmount: boolean, tagIds: string[], comment: string, editable: boolean) {
         this.id = id;
         this.timeSequenceId = timeSequenceId;
@@ -55,6 +57,31 @@ export class Transaction implements TransactionInfoResponse {
         this.comment = comment;
         this.editable = editable;
         this.setCategoryId(categoryId);
+    }
+
+    get timeFormatted(): string{
+        try {
+            if (this.time != undefined) {
+                const date = new Date(this.time * 1000);
+                if (isValid(date)) {
+                    return format(date, timeFormatStr);
+                }
+            }
+
+            return '';
+        } catch (e) {
+            // 如果格式不正确，保留用户输入的值
+            console.log(e);
+        }
+
+        return '';
+    }
+
+    set timeFormatted(value: string){
+        const parsedDate = parse(value, timeFormatStr, new Date());
+        if (isValid(parsedDate)) {
+            this.time = Math.floor(parsedDate.getTime() / 1000);
+        }
     }
 
     public get pictures(): TransactionPictureInfoBasicResponse[] | undefined {
